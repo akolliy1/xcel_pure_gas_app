@@ -20,8 +20,8 @@ export default function ServicesPage() {
       <CTABanner
         title="Need a Custom Solution?"
         description="Our team of experts is ready to design a tailored nitrogen gas solution for your specific requirements."
-        primaryText="Request a Consultation"
-        primaryHref="/contact?subject=Request a Quote&service=Custom Nitrogen Solution"
+        primaryText="Request Service"
+        primaryHref="/contact?subject=service&service=Custom%20Nitrogen%20Solution"
       />
     </>
   )

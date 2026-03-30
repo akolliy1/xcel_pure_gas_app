@@ -79,7 +79,7 @@ export function HeroSection() {
               size="lg"
               className="bg-primary hover:bg-primary/90 text-white text-lg px-8"
             >
-              <Link href="/contact?subject=Request a Quote">Get a Quote</Link>
+              <Link href="/contact?subject=quote">Get a Quote</Link>
             </Button>
             <Button
               asChild

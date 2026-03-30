@@ -59,7 +59,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   return (
     <>
       {/* Main Content */}
-      <section ref={sectionRef} className="py-16 md:py-24 bg-background">
+      <section ref={sectionRef} className="bg-background py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-3 gap-12">
             {/* Left Column - Main Content */}
@@ -232,7 +232,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
                   asChild 
                   className="w-full bg-white text-primary hover:bg-white/90"
                 >
-                  <Link href={`/contact?subject=Project Inquiry: ${project.category}&service=${encodeURIComponent(project.title)}`}>
+                  <Link href={`/contact?subject=service&service=${encodeURIComponent(project.title)}`}>
                     Request Similar Service
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
@@ -307,7 +307,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
         title="Ready to Start Your Project?"
         description="Contact our team to discuss your nitrogen gas requirements and get a customized solution."
         primaryText="Get a Quote"
-        primaryHref="/contact?subject=Request a Quote"
+        primaryHref="/contact?subject=quote"
       />
     </>
   )

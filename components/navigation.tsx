@@ -74,7 +74,7 @@ export function Navigation() {
               </Link>
             ))}
             <Button asChild className="bg-primary hover:bg-primary/90">
-              <Link href="/contact">Get a Quote</Link>
+              <Link href="/contact?subject=quote">Get a Quote</Link>
             </Button>
           </div>
 
@@ -112,7 +112,7 @@ export function Navigation() {
               </Link>
             ))}
             <Button asChild className="mt-4 w-full max-w-xs bg-primary hover:bg-primary/90">
-              <Link href="/contact">Get a Quote</Link>
+              <Link href="/contact?subject=quote">Get a Quote</Link>
             </Button>
           </div>
         </div>
