@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -22,13 +22,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { useToast } from "@/hooks/use-toast"
 import { submitJobApplication } from "@/lib/api"
-import { 
-  Upload, 
-  CheckCircle, 
-  X, 
-  FileText,
-  Send 
-} from "lucide-react"
+import { CheckCircle, FileText, Send, Upload, X } from "lucide-react"
 
 interface JobApplicationModalProps {
   isOpen: boolean
@@ -54,47 +48,76 @@ interface FormErrors {
   cvFile?: string
 }
 
-export function JobApplicationModal({ 
-  isOpen, 
-  onClose, 
-  positions, 
-  defaultPosition = "" 
+const allowedCvTypes = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]
+
+function createInitialFormData(position = ""): FormData {
+  return {
+    fullName: "",
+    email: "",
+    phone: "",
+    position,
+    coverLetter: "",
+  }
+}
+
+export function JobApplicationModal({
+  isOpen,
+  onClose,
+  positions,
+  defaultPosition = "",
 }: JobApplicationModalProps) {
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [cvFile, setCvFile] = useState<File | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    fullName: "",
-    email: "",
-    phone: "",
-    position: defaultPosition,
-    coverLetter: "",
-  })
+  const [formData, setFormData] = useState<FormData>(() => createInitialFormData(defaultPosition))
   const [errors, setErrors] = useState<FormErrors>({})
+
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    setFormData(createInitialFormData(defaultPosition))
+    setCvFile(null)
+    setErrors({})
+    setIsSubmitted(false)
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }, [defaultPosition, isOpen])
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
-    
+
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Full name is required"
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = "Email is required"
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address"
     }
-    
+
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required"
     }
-    
-    if (!formData.position) {
+
+    if (!formData.position.trim()) {
       newErrors.position = "Please select a position"
     }
-    
+
+    if (!cvFile) {
+      newErrors.cvFile = "Please upload your CV"
+    }
+
     if (!formData.coverLetter.trim()) {
       newErrors.coverLetter = "Cover letter is required"
     } else if (formData.coverLetter.trim().length < 50) {
@@ -105,50 +128,73 @@ export function JobApplicationModal({
     return Object.keys(newErrors).length === 0
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-      if (!allowedTypes.includes(file.type)) {
-        setErrors(prev => ({ ...prev, cvFile: "Please upload a PDF or Word document" }))
-        return
-      }
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors(prev => ({ ...prev, cvFile: "File size should be less than 5MB" }))
-        return
-      }
-      setCvFile(file)
-      setErrors(prev => ({ ...prev, cvFile: undefined }))
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+      return
     }
+
+    if (!allowedCvTypes.includes(file.type)) {
+      setCvFile(null)
+      setErrors((prev) => ({ ...prev, cvFile: "Please upload a PDF or Word document" }))
+      event.target.value = ""
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setCvFile(null)
+      setErrors((prev) => ({ ...prev, cvFile: "File size should be less than 5MB" }))
+      event.target.value = ""
+      return
+    }
+
+    setCvFile(file)
+    setErrors((prev) => ({ ...prev, cvFile: undefined }))
   }
 
   const removeFile = () => {
     setCvFile(null)
+    setErrors((prev) => ({ ...prev, cvFile: undefined }))
+
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target
+
+    setFormData((prev) => ({ ...prev, [name]: value }))
+
     if (errors[name as keyof FormErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }))
+      setErrors((prev) => ({ ...prev, [name]: undefined }))
     }
   }
 
   const handlePositionChange = (value: string) => {
-    setFormData(prev => ({ ...prev, position: value }))
+    setFormData((prev) => ({ ...prev, position: value }))
+
     if (errors.position) {
-      setErrors(prev => ({ ...prev, position: undefined }))
+      setErrors((prev) => ({ ...prev, position: undefined }))
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const resetModalState = () => {
+    setFormData(createInitialFormData())
+    setCvFile(null)
+    setErrors({})
+    setIsSubmitted(false)
+    setIsSubmitting(false)
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+
     if (!validateForm()) {
       toast({
         title: "Validation Error",
@@ -166,15 +212,15 @@ export function JobApplicationModal({
         cvFile: cvFile || undefined,
       })
 
-      if (response.success) {
-        setIsSubmitted(true)
-        toast({
-          title: "Application Submitted",
-          description: response.message,
-        })
-      } else {
-        throw new Error(response.error || "Failed to submit application")
+      if (!response.success) {
+        throw new Error(response.error || response.message || "Failed to submit application")
       }
+
+      setIsSubmitted(true)
+      toast({
+        title: "Application Submitted",
+        description: response.message,
+      })
     } catch (error) {
       toast({
         title: "Submission Failed",
@@ -187,36 +233,22 @@ export function JobApplicationModal({
   }
 
   const handleClose = () => {
-    // Reset form when closing
-    if (isSubmitted) {
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        position: "",
-        coverLetter: "",
-      })
-      setCvFile(null)
-      setIsSubmitted(false)
-    }
-    setErrors({})
+    resetModalState()
     onClose()
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto sm:max-w-[600px]">
         {isSubmitted ? (
           <div className="py-12 text-center">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
               <CheckCircle className="h-10 w-10 text-primary" />
             </div>
-            <h3 className="text-2xl font-semibold text-foreground mb-2">
-              Application Submitted!
-            </h3>
-            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Thank you for applying for the {formData.position} position. 
-              Our HR team will review your application and contact you soon.
+            <h3 className="mb-2 text-2xl font-semibold text-foreground">Application Submitted!</h3>
+            <p className="mx-auto mb-8 max-w-md text-muted-foreground">
+              Thank you for applying for the {formData.position} position. Our HR team will review
+              your application and contact you soon.
             </p>
             <Button onClick={handleClose} size="lg">
               Close
@@ -227,12 +259,12 @@ export function JobApplicationModal({
             <DialogHeader>
               <DialogTitle className="text-2xl">Apply for Position</DialogTitle>
               <DialogDescription>
-                Fill out the form below to submit your application. All fields marked with * are required.
+                Fill out the form below to submit your application. All fields marked with * are
+                required.
               </DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-5 mt-4">
-              {/* Full Name */}
+            <form onSubmit={handleSubmit} className="mt-4 space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name *</Label>
                 <Input
@@ -244,12 +276,9 @@ export function JobApplicationModal({
                   className={errors.fullName ? "border-destructive" : ""}
                   disabled={isSubmitting}
                 />
-                {errors.fullName && (
-                  <p className="text-destructive text-xs">{errors.fullName}</p>
-                )}
+                {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
               </div>
 
-              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address *</Label>
                 <Input
@@ -262,12 +291,9 @@ export function JobApplicationModal({
                   className={errors.email ? "border-destructive" : ""}
                   disabled={isSubmitting}
                 />
-                {errors.email && (
-                  <p className="text-destructive text-xs">{errors.email}</p>
-                )}
+                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
               </div>
 
-              {/* Phone */}
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number *</Label>
                 <Input
@@ -279,39 +305,37 @@ export function JobApplicationModal({
                   className={errors.phone ? "border-destructive" : ""}
                   disabled={isSubmitting}
                 />
-                {errors.phone && (
-                  <p className="text-destructive text-xs">{errors.phone}</p>
-                )}
+                {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
               </div>
 
-              {/* Position */}
               <div className="space-y-2">
                 <Label htmlFor="position">Position Applying For *</Label>
-                <Select 
-                  value={formData.position} 
-                  onValueChange={handlePositionChange}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger className={errors.position ? "border-destructive" : ""}>
-                    <SelectValue placeholder="Select a position" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {positions.map((position) => (
-                      <SelectItem key={position} value={position}>
-                        {position}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.position && (
-                  <p className="text-destructive text-xs">{errors.position}</p>
+                {defaultPosition ? (
+                  <Input id="position" value={formData.position} readOnly disabled />
+                ) : (
+                  <Select
+                    value={formData.position}
+                    onValueChange={handlePositionChange}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger className={errors.position ? "border-destructive" : ""}>
+                      <SelectValue placeholder="Select a position" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {positions.map((position) => (
+                        <SelectItem key={position} value={position}>
+                          {position}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
+                {errors.position && <p className="text-xs text-destructive">{errors.position}</p>}
               </div>
 
-              {/* CV Upload */}
               <div className="space-y-2">
-                <Label>Upload CV (PDF or Word, max 5MB)</Label>
-                <div className="border-2 border-dashed border-border rounded-lg p-4 transition-colors hover:border-primary/50">
+                <Label htmlFor="cv-upload">Upload CV *</Label>
+                <div className="rounded-lg border-2 border-dashed border-border p-4 transition-colors hover:border-primary/50">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -322,11 +346,11 @@ export function JobApplicationModal({
                     disabled={isSubmitting}
                   />
                   {cvFile ? (
-                    <div className="flex items-center justify-between bg-muted rounded-lg p-3">
+                    <div className="flex items-center justify-between rounded-lg bg-muted p-3">
                       <div className="flex items-center gap-3">
                         <FileText className="h-8 w-8 text-primary" />
                         <div>
-                          <p className="font-medium text-sm">{cvFile.name}</p>
+                          <p className="text-sm font-medium">{cvFile.name}</p>
                           <p className="text-xs text-muted-foreground">
                             {(cvFile.size / 1024 / 1024).toFixed(2)} MB
                           </p>
@@ -345,24 +369,21 @@ export function JobApplicationModal({
                   ) : (
                     <label
                       htmlFor="cv-upload"
-                      className="flex flex-col items-center justify-center py-4 cursor-pointer"
+                      className="flex cursor-pointer flex-col items-center justify-center py-4"
                     >
-                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                      <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
                       <span className="text-sm text-muted-foreground">
-                        Click to upload or drag and drop
+                        Click to upload your CV
                       </span>
-                      <span className="text-xs text-muted-foreground mt-1">
+                      <span className="mt-1 text-xs text-muted-foreground">
                         PDF, DOC, DOCX (max 5MB)
                       </span>
                     </label>
                   )}
                 </div>
-                {errors.cvFile && (
-                  <p className="text-destructive text-xs">{errors.cvFile}</p>
-                )}
+                {errors.cvFile && <p className="text-xs text-destructive">{errors.cvFile}</p>}
               </div>
 
-              {/* Cover Letter */}
               <div className="space-y-2">
                 <Label htmlFor="coverLetter">Cover Letter *</Label>
                 <Textarea
@@ -376,17 +397,11 @@ export function JobApplicationModal({
                   disabled={isSubmitting}
                 />
                 {errors.coverLetter && (
-                  <p className="text-destructive text-xs">{errors.coverLetter}</p>
+                  <p className="text-xs text-destructive">{errors.coverLetter}</p>
                 )}
               </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={isSubmitting}
-              >
+              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Spinner className="mr-2" />

@@ -17,12 +17,12 @@ export function CTABanner({
   title = "Ready to Get Started?",
   description = "Contact us today to discuss your nitrogen gas requirements and receive a customized quote.",
   primaryText = "Get a Quote",
-  primaryHref = "/contact?subject=Request a Quote",
+  primaryHref = "/contact?subject=quote",
   secondaryText = "Call Us Now",
   secondaryHref = "tel:+2348064975518",
 }: CTABannerProps) {
   return (
-    <section className="py-16 md:py-20 bg-gradient-to-r from-primary to-primary/80">
+    <section className="bg-gradient-to-r from-primary to-primary/80 py-16 md:py-20">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-balance">

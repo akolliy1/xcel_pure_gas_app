@@ -183,7 +183,7 @@ export function ProjectsContent() {
                       ))}
                     </ul>
                     <span className="inline-flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
-                      View Project Details
+                      View Project
                       <ArrowRight className="h-4 w-4" />
                     </span>
                   </div>
