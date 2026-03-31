@@ -25,53 +25,49 @@ export function HomeMissionPreview() {
   }, [])
 
   return (
-    <section
-      ref={sectionRef}
-      className="py-20 md:py-28 bg-gradient-to-br from-secondary/95 to-secondary"
-    >
-      <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className={`text-center max-w-3xl mx-auto mb-12 ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
-          <span className="text-white/70 font-semibold text-sm uppercase tracking-wider">
+    <section ref={sectionRef} className="relative overflow-hidden bg-gradient-to-br from-secondary/95 to-secondary py-24 md:py-32">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.14),transparent_30%)]" />
+      <div className="absolute -top-20 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+
+      <div className="container relative z-10 mx-auto px-4">
+        <div className={`mx-auto mb-14 max-w-3xl text-center ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+          <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/70">
             What Drives Us
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mt-2 text-balance">
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-white text-balance md:text-4xl lg:text-5xl">
             Our Mission & Vision
           </h2>
         </div>
 
-        {/* Mission & Vision */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {/* Mission */}
+        <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
           <div
-            className={`bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 ${
+            className={`rounded-2xl border border-white/15 bg-white/10 p-8 shadow-[0_24px_80px_-42px_rgba(0,0,0,0.7)] backdrop-blur-md ${
               isVisible ? "animate-slide-in-left" : "opacity-0"
             }`}
           >
-            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mb-6">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
               <Target className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Our Mission</h3>
-            <p className="text-white/90 leading-relaxed">
-              To deliver high-quality nitrogen gas solutions that empower industries with 
-              safe, reliable, and innovative services while maintaining the highest standards 
+            <h3 className="mb-4 text-2xl font-bold tracking-tight text-white">Our Mission</h3>
+            <p className="text-white/85 leading-8">
+              To deliver high-quality nitrogen gas solutions that empower industries with
+              safe, reliable, and innovative services while maintaining the highest standards
               of operational excellence.
             </p>
           </div>
 
-          {/* Vision */}
           <div
-            className={`bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 ${
+            className={`rounded-2xl border border-white/15 bg-white/10 p-8 shadow-[0_24px_80px_-42px_rgba(0,0,0,0.7)] backdrop-blur-md ${
               isVisible ? "animate-slide-in-right" : "opacity-0"
             }`}
           >
-            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mb-6">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
               <Eye className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Our Vision</h3>
-            <p className="text-white/90 leading-relaxed">
-              To become the leading provider of industrial gas solutions in Africa, 
-              recognized for our commitment to quality, innovation, and sustainable 
+            <h3 className="mb-4 text-2xl font-bold tracking-tight text-white">Our Vision</h3>
+            <p className="text-white/85 leading-8">
+              To become the leading provider of industrial gas solutions in Africa,
+              recognized for our commitment to quality, innovation, and sustainable
               practices.
             </p>
           </div>

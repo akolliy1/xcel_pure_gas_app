@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { 
-  Cylinder, 
-  Pipette, 
-  Factory, 
-  Package, 
-  ArrowRight
+import {
+  Cylinder,
+  Pipette,
+  Factory,
+  Package,
+  ArrowRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -34,6 +34,13 @@ const services = [
   },
 ]
 
+const animationDelayClasses = [
+  "",
+  "animation-delay-100",
+  "animation-delay-200",
+  "animation-delay-300",
+]
+
 export function HomeServicesPreview() {
   const [isVisible, setIsVisible] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
@@ -56,57 +63,48 @@ export function HomeServicesPreview() {
   }, [])
 
   return (
-    <section
-      ref={sectionRef}
-      className="py-20 md:py-28 bg-muted"
-    >
+    <section ref={sectionRef} className="bg-muted/60 py-24 md:py-32">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className={`text-center max-w-3xl mx-auto mb-16 ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
-          <span className="text-primary font-semibold text-sm uppercase tracking-wider">
+        <div className={`mx-auto mb-16 max-w-3xl text-center ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+          <span className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">
             Our Services
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4 text-balance">
+          <h2 className="mt-3 mb-5 text-3xl font-bold tracking-tight text-foreground text-balance md:text-4xl lg:text-5xl">
             Comprehensive Nitrogen Gas Solutions
           </h2>
-          <p className="text-muted-foreground">
-            From production to delivery, we offer end-to-end nitrogen gas services tailored to 
+          <p className="text-base leading-8 text-muted-foreground md:text-lg">
+            From production to delivery, we offer end-to-end nitrogen gas services tailored to
             meet the diverse needs of industries across Nigeria.
           </p>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {services.map((service, index) => (
             <div
               key={service.title}
-              className={`group bg-card rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border ${
-                isVisible ? "animate-fade-in-up" : "opacity-0"
+              className={`group rounded-2xl border border-border/70 bg-card/90 p-7 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.4)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_-36px_rgba(15,23,42,0.45)] ${
+                isVisible ? `animate-fade-in-up ${animationDelayClasses[index]}` : "opacity-0"
               }`}
-              style={{ animationDelay: `${index * 100}ms` }}
             >
-              {/* Icon */}
-              <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
-                <service.icon className="h-7 w-7 text-primary group-hover:text-primary-foreground transition-colors" />
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary">
+                <service.icon className="h-7 w-7 text-primary transition-colors group-hover:text-primary-foreground" />
               </div>
 
-              {/* Content */}
-              <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+              <h3 className="mb-3 text-lg font-semibold text-foreground transition-colors group-hover:text-primary">
                 {service.title}
               </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-sm leading-7 text-muted-foreground">
                 {service.description}
               </p>
             </div>
           ))}
         </div>
 
-        {/* CTA */}
-        <div className={`text-center mt-12 ${isVisible ? "animate-fade-in-up animation-delay-500" : "opacity-0"}`}>
-          <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+        <div className={`mt-14 text-center ${isVisible ? "animate-fade-in-up animation-delay-500" : "opacity-0"}`}>
+          <Button asChild size="lg" className="bg-primary text-white shadow-lg shadow-primary/25">
             <Link href="/services">
               View All Services
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="h-5 w-5" />
             </Link>
           </Button>
         </div>
