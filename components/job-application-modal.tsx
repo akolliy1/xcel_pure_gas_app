@@ -46,6 +46,7 @@ interface FormErrors {
   position?: string
   coverLetter?: string
   cvFile?: string
+  captchaResponse?: string
 }
 
 const allowedCvTypes = [
@@ -53,6 +54,8 @@ const allowedCvTypes = [
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]
+
+const jobCaptchaChallenge = "L9Q2"
 
 function createInitialFormData(position = ""): FormData {
   return {
@@ -75,6 +78,7 @@ export function JobApplicationModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [cvFile, setCvFile] = useState<File | null>(null)
+  const [captchaResponse, setCaptchaResponse] = useState("")
   const [formData, setFormData] = useState<FormData>(() => createInitialFormData(defaultPosition))
   const [errors, setErrors] = useState<FormErrors>({})
 
@@ -85,6 +89,7 @@ export function JobApplicationModal({
 
     setFormData(createInitialFormData(defaultPosition))
     setCvFile(null)
+    setCaptchaResponse("")
     setErrors({})
     setIsSubmitted(false)
 
@@ -122,6 +127,10 @@ export function JobApplicationModal({
       newErrors.coverLetter = "Cover letter is required"
     } else if (formData.coverLetter.trim().length < 50) {
       newErrors.coverLetter = "Cover letter should be at least 50 characters"
+    }
+
+    if (captchaResponse.trim().toUpperCase() !== jobCaptchaChallenge) {
+      newErrors.captchaResponse = "Complete the CAPTCHA to continue"
     }
 
     setErrors(newErrors)
@@ -183,6 +192,7 @@ export function JobApplicationModal({
   const resetModalState = () => {
     setFormData(createInitialFormData())
     setCvFile(null)
+    setCaptchaResponse("")
     setErrors({})
     setIsSubmitted(false)
     setIsSubmitting(false)
@@ -210,6 +220,7 @@ export function JobApplicationModal({
       const response = await submitJobApplication({
         ...formData,
         cvFile: cvFile || undefined,
+        captchaResponse: captchaResponse.trim(),
       })
 
       if (!response.success) {
@@ -401,7 +412,43 @@ export function JobApplicationModal({
                 )}
               </div>
 
-              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+              <div className="space-y-2">
+                <Label htmlFor="captchaResponse">Security Check *</Label>
+                <div className="rounded-2xl border border-border bg-muted/40 p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Type the code shown</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Placeholder CAPTCHA for future backend integration.
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-dashed border-border bg-background px-4 py-3 font-mono text-base font-semibold tracking-[0.35em] text-primary">
+                      {jobCaptchaChallenge}
+                    </div>
+                  </div>
+                  <Input
+                    id="captchaResponse"
+                    name="captchaResponse"
+                    value={captchaResponse}
+                    onChange={(event) => {
+                      setCaptchaResponse(event.target.value)
+                      if (errors.captchaResponse) {
+                        setErrors((prev) => ({ ...prev, captchaResponse: "" }))
+                      }
+                    }}
+                    placeholder="Enter the code above"
+                    className={`mt-4 uppercase tracking-[0.35em] ${errors.captchaResponse ? "border-destructive" : ""}`}
+                    autoComplete="off"
+                    spellCheck={false}
+                    disabled={isSubmitting}
+                  />
+                </div>
+                {errors.captchaResponse && (
+                  <p className="text-xs text-destructive">{errors.captchaResponse}</p>
+                )}
+              </div>
+
+              <Button type="submit" size="lg" className="w-full bg-primary text-white" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Spinner className="mr-2" />
