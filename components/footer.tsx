@@ -51,7 +51,7 @@ export function Footer() {
               alt="Xcel Pure Gas LTD"
               width={160}
               height={50}
-              className="h-12 w-auto mb-6" {/* brightness-0 invert"*/}
+              className="h-12 w-auto mb-6"
             />
             <p className="text-secondary-foreground/80 text-sm leading-relaxed mb-6">
               Leading provider of high-purity nitrogen gas solutions in Nigeria, 
