@@ -6,6 +6,7 @@ export interface ContactFormData {
   subject: string
   message: string
   service?: string
+  captchaResponse?: string
 }
 
 export interface JobApplicationData {
@@ -15,6 +16,7 @@ export interface JobApplicationData {
   position: string
   coverLetter: string
   cvFile?: File
+  captchaResponse?: string
 }
 
 export interface ApiResponse<T = unknown> {
@@ -86,6 +88,10 @@ export async function submitJobApplication(data: JobApplicationData): Promise<Ap
     formData.append("phone", data.phone)
     formData.append("position", data.position)
     formData.append("coverLetter", data.coverLetter)
+
+    if (data.captchaResponse) {
+      formData.append("captchaResponse", data.captchaResponse)
+    }
 
     if (data.cvFile) {
       formData.append("cv", data.cvFile)

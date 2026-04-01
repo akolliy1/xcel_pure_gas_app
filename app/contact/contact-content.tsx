@@ -50,6 +50,8 @@ const contactInfo = [
   },
 ] as const
 
+const contactCaptchaChallenge = "X7P4"
+
 function formatSubjectValue(subject: string | null) {
   if (!subject) {
     return ""
@@ -91,6 +93,7 @@ export function ContactContent() {
   const [isVisible, setIsVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [captchaResponse, setCaptchaResponse] = useState("")
   const sectionRef = useRef<HTMLElement>(null)
 
   const prefilledSubject = useMemo(
@@ -122,6 +125,7 @@ export function ContactContent() {
       subject: prefilledSubject,
       message: prefilledMessage,
     })
+    setCaptchaResponse("")
     setErrors({})
     setIsSubmitted(false)
   }, [prefilledMessage, prefilledSubject])
@@ -168,6 +172,10 @@ export function ContactContent() {
       newErrors.message = "Message is required"
     }
 
+    if (captchaResponse.trim().toUpperCase() !== contactCaptchaChallenge) {
+      newErrors.captchaResponse = "Complete the CAPTCHA to continue"
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -195,6 +203,7 @@ export function ContactContent() {
         subject: formData.subject,
         message: formData.message,
         service: prefilledService || undefined,
+        captchaResponse: captchaResponse.trim(),
       })
 
       if (!response.success) {
@@ -237,6 +246,7 @@ export function ContactContent() {
       subject: prefilledSubject,
       message: prefilledMessage,
     })
+    setCaptchaResponse("")
     setErrors({})
   }
 
@@ -420,6 +430,42 @@ export function ContactContent() {
                     {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="captchaResponse">Security Check *</Label>
+                    <div className="rounded-2xl border border-border bg-muted/40 p-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">Type the code shown</p>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            Placeholder CAPTCHA for future backend integration.
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-dashed border-border bg-background px-4 py-3 font-mono text-base font-semibold tracking-[0.35em] text-primary">
+                          {contactCaptchaChallenge}
+                        </div>
+                      </div>
+                      <Input
+                        id="captchaResponse"
+                        name="captchaResponse"
+                        value={captchaResponse}
+                        onChange={(event) => {
+                          setCaptchaResponse(event.target.value)
+                          if (errors.captchaResponse) {
+                            setErrors((prev) => ({ ...prev, captchaResponse: "" }))
+                          }
+                        }}
+                        placeholder="Enter the code above"
+                        className={`mt-4 uppercase tracking-[0.35em] ${errors.captchaResponse ? "border-destructive" : ""}`}
+                        autoComplete="off"
+                        spellCheck={false}
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    {errors.captchaResponse && (
+                      <p className="text-xs text-destructive">{errors.captchaResponse}</p>
+                    )}
+                  </div>
+
                   <p className="text-xs text-muted-foreground">
                     By submitting this form, you agree to our privacy policy. We will only use your
                     information to respond to your inquiry.
@@ -428,7 +474,7 @@ export function ContactContent() {
                   <Button
                     type="submit"
                     size="lg"
-                    className="w-full bg-primary text-lg hover:bg-primary/90"
+                    className="w-full bg-primary text-lg text-white hover:bg-primary/90"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
